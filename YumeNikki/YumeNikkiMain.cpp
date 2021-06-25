@@ -87,6 +87,8 @@ int main() {
 
 	//Model Madotsuki's bedroom
 	Model papelera((char*)"Models/Room/Papelera.obj");
+	Model cojin((char*)"Models/Room/Cojin.obj");
+	Model librero((char*)"Models/Room/Librero.obj");
 
 	glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 	
@@ -112,11 +114,21 @@ int main() {
 
 		//Draw models
 		glm::mat4 model(1);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // Translate it down a bit so it's at the center of the scene
+		model = glm::translate(model, glm::vec3(-5.0f, 0.0f, 0.0f)); // Translate it down a bit so it's at the center of the scene
 		//model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0));	// It's a bit too big for our scene, so scale it down
 		//model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		papelera.Draw(shader);
+
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		cojin.Draw(shader);
+		
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		librero.Draw(shader);
 
 		// Swap the buffers
 		glfwSwapBuffers(window);
