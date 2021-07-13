@@ -29,7 +29,7 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void DoMovement();
 
 //Camera
-Camera camera(glm::vec3(0.0f, 0.0f, 20.0f));
+Camera camera(glm::vec3(5.0f, 5.0f, 5.0f));
 bool keys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -86,10 +86,15 @@ int main() {
 	Shader shader("Shaders/modelLoading.vs", "Shaders/modelLoading.frag");
 
 	//Model Madotsuki's bedroom
+	Model alfombra((char*)"Models/Room/Alfombra.obj");
 	Model cojin((char*)"Models/Room/Cojin.obj");
 	Model cojin2((char*)"Models/Room/Cojin2.obj");
+	Model consola((char*)"Models/Room/Consola.obj");
 	Model librero((char*)"Models/Room/Librero.obj");
+	Model mesa((char*)"Models/Room/Mesa.obj");
+	Model mueble((char*)"Models/Room/Mueble.obj");
 	Model papelera((char*)"Models/Room/Papelera.obj");
+	Model puerta((char*)"Models/Room/Puerta.obj");
 	Model television((char*)"Models/Room/Television.obj");
 	
 
@@ -118,23 +123,39 @@ int main() {
 		//Draw models
 		glm::mat4 model(1);
 
-		model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		alfombra.Draw(shader);
+
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		cojin.Draw(shader);
 
-		model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		cojin2.Draw(shader);
 
-		model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		librero.Draw(shader);
 
-		model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		mesa.Draw(shader);
+
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		mueble.Draw(shader);
+
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		papelera.Draw(shader);
+
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		puerta.Draw(shader);
 		
-		model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		television.Draw(shader);
 
