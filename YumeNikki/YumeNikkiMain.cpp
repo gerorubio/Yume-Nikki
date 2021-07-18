@@ -29,7 +29,7 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void DoMovement();
 
 //Camera
-Camera camera(glm::vec3(5.0f, 5.0f, 5.0f));
+Camera camera(glm::vec3(5.0f, 30.0f, 10.0f));
 bool keys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -87,15 +87,21 @@ int main() {
 
 	//Model Madotsuki's bedroom
 	Model alfombra((char*)"Models/Room/Alfombra.obj");
+	Model cama((char*)"Models/Room/Cama.obj");
 	Model cojin((char*)"Models/Room/Cojin.obj");
 	Model cojin2((char*)"Models/Room/Cojin2.obj");
 	Model consola((char*)"Models/Room/Consola.obj");
+	Model lampara((char*)"Models/Room/Lampara.obj");
 	Model librero((char*)"Models/Room/Librero.obj");
 	Model mesa((char*)"Models/Room/Mesa.obj");
 	Model mueble((char*)"Models/Room/Mueble.obj");
 	Model papelera((char*)"Models/Room/Papelera.obj");
 	Model puerta((char*)"Models/Room/Puerta.obj");
+	Model silla((char*)"Models/Room/Silla.obj");
 	Model television((char*)"Models/Room/Television.obj");
+
+	Model piso((char*)"Models/Room/Piso.obj");
+
 	
 
 	glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
@@ -125,7 +131,15 @@ int main() {
 
 		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		piso.Draw(shader);
+
+		/*model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		alfombra.Draw(shader);
+
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		cama.Draw(shader);
 
 		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -134,6 +148,14 @@ int main() {
 		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		cojin2.Draw(shader);
+
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		consola.Draw(shader);
+
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		lampara.Draw(shader);
 
 		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -154,10 +176,14 @@ int main() {
 		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		puerta.Draw(shader);
+
+		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		silla.Draw(shader);
 		
 		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		television.Draw(shader);
+		television.Draw(shader);*/
 
 		// Swap the buffers
 		glfwSwapBuffers(window);

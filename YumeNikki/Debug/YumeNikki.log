@@ -1,9 +1,9 @@
 ﻿  YumeNikkiMain.cpp
-D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(105,24): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(208,11): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(209,11): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(213,18): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(214,18): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(216,10): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(217,10): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(111,24): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(234,11): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(235,11): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(239,18): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(240,18): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(242,10): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\YumeNikki\YumeNikkiMain.cpp(243,10): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
   YumeNikki.vcxproj -> D:\Universidad\Computación Gráfica\Lab\Proyecto\YumeNikki\Debug\YumeNikki.exe
