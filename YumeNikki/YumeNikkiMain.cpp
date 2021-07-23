@@ -29,7 +29,7 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void DoMovement();
 
 //Camera
-Camera camera(glm::vec3(5.0f, 30.0f, 10.0f));
+Camera camera(glm::vec3(5.0f, 0.0f, 5.0f));
 bool keys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -102,7 +102,8 @@ int main() {
 
 	Model piso((char*)"Models/Room/Piso.obj");
 
-	
+	Model madotsuki((char*)"Models/madotsuki/0.obj");
+
 
 	glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 	
@@ -129,13 +130,18 @@ int main() {
 		//Draw models
 		glm::mat4 model(1);
 
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		madotsuki.Draw(shader);
+
+		/*model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		piso.Draw(shader);
 
 		model = glm::translate(model, glm::vec3(20.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		lampara.Draw(shader);
+		lampara.Draw(shader);*/
 
 
 		/*model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
