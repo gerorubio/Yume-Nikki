@@ -1,5 +1,7 @@
 // Std. Includes
 #include <string>
+#include <iostream>
+#include <cmath>
 
 // GLEW
 #include <GL/glew.h>
@@ -7,10 +9,14 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
+// Other Libs
+#include "stb_image.h"
+
 // GL includes
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+#include "Texture.h"
 
 // GLM Mathemtics
 #include <glm/glm.hpp>
@@ -29,7 +35,7 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void DoMovement();
 
 //Camera
-Camera camera(glm::vec3(5.0f, 0.0f, 5.0f));
+Camera camera(glm::vec3(0.0f, 30.0f, 15.0f));
 bool keys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -81,29 +87,90 @@ int main() {
 
 	// OpenGL options
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Setup and compile our shaders
+	Shader lightingShader("Shaders/lighting.vs", "Shaders/lighting.frag");
+	Shader lampShader("Shaders/lamp.vs", "Shaders/lamp.frag");
 	Shader shader("Shaders/modelLoading.vs", "Shaders/modelLoading.frag");
+	Shader SkyBoxshader("Shaders/SkyBox.vs", "Shaders/SkyBox.frag");
 
 	//Model Madotsuki's bedroom
-	Model alfombra((char*)"Models/Room/Alfombra.obj");
-	Model cama((char*)"Models/Room/Cama.obj");
-	Model cojin((char*)"Models/Room/Cojin.obj");
-	Model cojin2((char*)"Models/Room/Cojin2.obj");
-	Model consola((char*)"Models/Room/Consola.obj");
-	Model lampara((char*)"Models/Room/Lampara.obj");
-	Model librero((char*)"Models/Room/Librero.obj");
-	Model mesa((char*)"Models/Room/Mesa.obj");
-	Model mueble((char*)"Models/Room/Mueble.obj");
-	Model papelera((char*)"Models/Room/Papelera.obj");
-	Model puerta((char*)"Models/Room/Puerta.obj");
-	Model silla((char*)"Models/Room/Silla.obj");
-	Model television((char*)"Models/Room/Television.obj");
-
 	Model piso((char*)"Models/Room/Piso.obj");
+	Model puertaDeslizanteIzq((char*)"Models/Room/SlideDoor.obj");
+	Model puertaDeslizanteDer((char*)"Models/Room/SlideDoor.obj");
 
-	Model madotsuki((char*)"Models/madotsuki/0.obj");
 
+
+	//Skybox
+	GLfloat skyboxVertices[] = {
+		// Positions
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f
+	};
+
+
+
+	//SkyBox
+	GLuint skyboxVBO, skyboxVAO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
+	// Load textures
+	vector<const GLchar*> faces;
+	faces.push_back("SkyBox/right.tga");
+	faces.push_back("SkyBox/left.tga");
+	faces.push_back("SkyBox/top.tga");
+	faces.push_back("SkyBox/bottom.tga");
+	faces.push_back("SkyBox/back.tga");
+	faces.push_back("SkyBox/front.tga");
+
+	GLuint cubemapTexture = TextureLoading::LoadCubemap(faces);
 
 	glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 	
@@ -128,81 +195,55 @@ int main() {
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 		//Draw models
+		//Piso
 		glm::mat4 model(1);
-
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		madotsuki.Draw(shader);
-
-		/*model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		piso.Draw(shader);
 
-		model = glm::translate(model, glm::vec3(20.0f, 0.0f, 0.0f));
+		//Puerta deslizante izquierda
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(-3.15f, 30.25f, 12.9f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		lampara.Draw(shader);*/
+		puertaDeslizanteIzq.Draw(shader);
 
+		//Puerta deslizante derecha
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(-2.0f, 30.25f, 12.7f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		puertaDeslizanteIzq.Draw(shader);
 
-		/*model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		alfombra.Draw(shader);
+		// Draw skybox as last
+		glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
+		SkyBoxshader.Use();
+		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));	// Remove any translation component of the view matrix
+		glUniformMatrix4fv(glGetUniformLocation(SkyBoxshader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(SkyBoxshader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		cama.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		cojin.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		cojin2.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		consola.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		lampara.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		librero.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		mesa.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		mueble.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		papelera.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		puerta.Draw(shader);
-
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		silla.Draw(shader);
-		
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		television.Draw(shader);*/
+		// skybox cube
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS); // Set depth function back to default
 
 		// Swap the buffers
 		glfwSwapBuffers(window);
 	}
 
-
-	glfwTerminate();
-	return 0;
+	//glDeleteVertexArrays(1, &VAO);
+	//glDeleteVertexArrays(1, &lightVAO);
+	//glDeleteBuffers(1, &VBO);
+	//glDeleteBuffers(1, &EBO);
+	//glDeleteVertexArrays(1, &skyboxVAO);
+	//glDeleteBuffers(1, &skyboxVBO);
+	//// Terminate GLFW, clearing any resources allocated by GLFW.
+	//glfwTerminate();
+	//return 0;
 }
 
 void DoMovement() {

@@ -63,22 +63,22 @@ public:
 
 		if (direction == FORWARD)
 		{
-			this->position += this->front * velocity;
+			this->position += this->front * velocity * 2.0f;
 		}
 
 		if (direction == BACKWARD)
 		{
-			this->position -= this->front * velocity;
+			this->position -= this->front * velocity * 2.0f;
 		}
 
 		if (direction == LEFT)
 		{
-			this->position -= this->right * velocity;
+			this->position -= this->right * velocity * 2.0f;
 		}
 
 		if (direction == RIGHT)
 		{
-			this->position += this->right * velocity;
+			this->position += this->right * velocity * 2.0f;
 		}
 	}
 
