@@ -1,3 +1,5 @@
+#pragma comment(lib, "winmm.lib")
+
 // Std. Includes
 #include <string>
 #include <iostream>
@@ -25,6 +27,11 @@
 
 // Other Libs
 #include "SOIL2/SOIL2.h"
+
+#include <iostream>
+#include <windows.h>
+#include <mmsystem.h>
+using namespace std;
 
 // Properties
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -101,7 +108,7 @@ int main() {
 	Model puertaDeslizanteIzq((char*)"Models/Room/SlideDoor.obj");
 	Model puertaDeslizanteDer((char*)"Models/Room/SlideDoor.obj");
 
-
+	PlaySound(TEXT("Music/ost.wav"), NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
 
 	//Skybox
 	GLfloat skyboxVertices[] = {
@@ -204,14 +211,14 @@ int main() {
 
 		//Puerta deslizante izquierda
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-3.15f, 30.25f, 12.9f));
+		model = glm::translate(model, glm::vec3(-3.15f, 27.65f, 12.9f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		puertaDeslizanteIzq.Draw(shader);
 
 		//Puerta deslizante derecha
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(-2.0f, 30.25f, 12.7f));
+		model = glm::translate(model, glm::vec3(-2.0f, 27.65f, 12.7f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		puertaDeslizanteIzq.Draw(shader);
