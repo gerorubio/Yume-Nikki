@@ -39,7 +39,9 @@ void DoMovement();
 void animacion();
 void DibujarCabeza(glm::mat4 view, glm::mat4 model, GLint modelLoc, Model cabeza, Shader lightingShader);
 void LimpiarKeyFrames();
-//void InputDelay();
+void PrintearCosas();
+void PrepAnim();
+void InputDelay();
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -53,9 +55,7 @@ bool firstMouse = true;
 float rot = 0.0f;
 
 // Light attributes
-glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
-glm::vec3 PosIni(0.0f, 26.35f, 8.0f);
-bool active;
+glm::vec3 PosIni(0.0f, 26.38f, 8.0f);
 
 // Deltatime
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
@@ -68,6 +68,11 @@ float rotBraIzqX = 0, rotBraIzqY = 0, rotBraIzqZ = 0;
 
 float rotPieDerX = 0, rotPieDerY = 0, rotPieDerZ = 0;
 float rotPieIzqX = 0, rotPieIzqY = 0, rotPieIzqZ = 0;
+
+float cuchilloX = -0.4f, cuchilloY = -0.05f, cuchilloZ = 0.0f;
+float flautaX = 0.4f, flautaY = 0.1f, flautaZ = -0.1f;
+
+float rotFlautaX = 0.0;
 
 #define MAX_FRAMES 9
 int i_max_steps = 190;
@@ -106,6 +111,24 @@ typedef struct _frame {
 	float rotIncPieIzqY;
 	float rotIncPieDerZ;
 	float rotIncPieIzqZ;
+
+	float cuchilloX;
+	float cuchilloY;
+	float cuchilloZ;
+	float incCuchilloX;
+	float incCuchilloY;
+	float incCuchilloZ;
+
+	float flautaX;
+	float flautaY;
+	float flautaZ;
+	float incFlautaX;
+	float incFlautaY;
+	float incFlautaZ;
+
+	float rotFlautaX;
+	float rotIncFlautaX;
+
 }FRAME;
 
 FRAME KeyFrame[MAX_FRAMES];
@@ -113,17 +136,13 @@ int FrameIndex = 0;			//introducir datos
 bool play = false;
 int playIndex = 0;
 
-float v = 0.1f;
-
 // Positions of the point lights
 glm::vec3 pointLightPositions[] = {
+	glm::vec3(4.4f, 27.8f, 1.0f),
 	glm::vec3(posX,posY + 0.52f,posZ),
-	glm::vec3(0.0f, 0.0f, 0.0f),
 	glm::vec3(0,1.0f,0),
 	glm::vec3(0,0,1.0f)
 };
-
-glm::vec3 LightP1;
 
 void saveFrame(void)
 {
@@ -150,6 +169,16 @@ void saveFrame(void)
 	KeyFrame[FrameIndex].rotPieDerY = rotPieIzqY;
 	KeyFrame[FrameIndex].rotPieDerZ = rotPieIzqZ;
 
+	KeyFrame[FrameIndex].cuchilloX = cuchilloX;
+	KeyFrame[FrameIndex].cuchilloY = cuchilloY;
+	KeyFrame[FrameIndex].cuchilloZ = cuchilloZ;
+
+	KeyFrame[FrameIndex].flautaX = flautaX;
+	KeyFrame[FrameIndex].flautaY = flautaY;
+	KeyFrame[FrameIndex].flautaZ = flautaZ;
+
+	KeyFrame[FrameIndex].rotFlautaX = rotFlautaX;
+
 	FrameIndex++;
 }
 
@@ -172,6 +201,16 @@ void resetElements(void)
 	rotPieIzqX = KeyFrame[0].rotPieIzqX;
 	rotPieIzqY = KeyFrame[0].rotPieIzqY;
 	rotPieIzqZ = KeyFrame[0].rotPieIzqZ;
+
+	cuchilloX = KeyFrame[0].cuchilloX;
+	cuchilloY = KeyFrame[0].cuchilloY;
+	cuchilloZ = KeyFrame[0].cuchilloZ;
+
+	flautaX = KeyFrame[0].flautaX;
+	flautaY = KeyFrame[0].flautaY;
+	flautaZ = KeyFrame[0].flautaZ;
+
+	rotFlautaX = KeyFrame[0].rotFlautaX;
 }
 
 void interpolation(void)
@@ -196,6 +235,16 @@ void interpolation(void)
 	KeyFrame[playIndex].rotIncPieIzqX = (KeyFrame[playIndex + 1].rotPieIzqX - KeyFrame[playIndex].rotPieIzqX) / i_max_steps;
 	KeyFrame[playIndex].rotIncPieIzqY = (KeyFrame[playIndex + 1].rotPieIzqY - KeyFrame[playIndex].rotPieIzqY) / i_max_steps;
 	KeyFrame[playIndex].rotIncPieIzqZ = (KeyFrame[playIndex + 1].rotPieIzqZ - KeyFrame[playIndex].rotPieIzqZ) / i_max_steps;
+
+	KeyFrame[playIndex].incCuchilloX = (KeyFrame[playIndex + 1].cuchilloX - KeyFrame[playIndex].cuchilloX) / i_max_steps;
+	KeyFrame[playIndex].incCuchilloY = (KeyFrame[playIndex + 1].cuchilloY - KeyFrame[playIndex].cuchilloY) / i_max_steps;
+	KeyFrame[playIndex].incCuchilloZ = (KeyFrame[playIndex + 1].cuchilloZ - KeyFrame[playIndex].cuchilloZ) / i_max_steps;
+
+	KeyFrame[playIndex].incFlautaX = (KeyFrame[playIndex + 1].flautaX - KeyFrame[playIndex].flautaX) / i_max_steps;
+	KeyFrame[playIndex].incFlautaY = (KeyFrame[playIndex + 1].flautaY - KeyFrame[playIndex].flautaY) / i_max_steps;
+	KeyFrame[playIndex].incFlautaZ = (KeyFrame[playIndex + 1].flautaZ - KeyFrame[playIndex].flautaZ) / i_max_steps;
+
+	KeyFrame[playIndex].rotIncFlautaX = (KeyFrame[playIndex + 1].rotFlautaX - KeyFrame[playIndex].rotFlautaX) / i_max_steps;
 }
 
 //Seleccion de efecto
@@ -211,10 +260,12 @@ Efecto tipo(normal);
 
 
 //Variables para las animaciones
-bool playing = false;
 bool animSlideDoor = false;
 bool open = true;
 float xSlideDoor = -2.0f;
+bool canInput = true;
+bool on = false;
+
 
 int main() {
 	// Init GLFW
@@ -507,20 +558,25 @@ int main() {
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
 
-		// Point light 1
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].position"), posX, posY + 0.52f, posZ);
+		// Point light 1 HeadLamp light
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].ambient"), 0.05f, 0.05f, 0.05f);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].diffuse"), LightP1.x, LightP1.y, LightP1.z);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].specular"), LightP1.x, LightP1.y, LightP1.z);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].diffuse"), 0.0f, 0.0f, 0.0f);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].specular"), 0.0f, 0.0f, 0.0f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].quadratic"), 0.032f);
 
-		// Point light 2
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
+		// Point light 2 
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].position"), posX, posY + 0.52f, posZ);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].ambient"), 0.05f, 0.05f, 0.05f);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].diffuse"), 1.0f, 1.0f, 0.0f);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].specular"), 1.0f, 1.0f, 0.0f);
+		if (tipo == lamp && on) 	{
+			glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].diffuse"), 1.0f, 1.0f, 0.0f);
+			glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].specular"), 1.0f, 1.0f, 0.0f);
+		} else {
+			glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].diffuse"), 0.0f, 0.0f, 0.0f);
+			glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].specular"), 0.0f, 0.0f, 0.0f);
+		}
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].quadratic"), 0.032f);
@@ -544,11 +600,11 @@ int main() {
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[3].quadratic"), 0.032f);
 
 		// SpotLight
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.position"), camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.direction"), camera.GetFront().x, camera.GetFront().y, camera.GetFront().z);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.ambient"), 0.0f, 0.0f, 0.0f);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.diffuse"), 0.0f, 0.0f, 0.0f);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.specular"), 0.0f, 0.0f, 0.0f);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.direction"), 8.0f, -10.0f, 8.0f);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.ambient"), 0.9f, 0.9f, 0.9f);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.diffuse"), 0.9f, 0.9f, 0.9f);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.specular"), 0.8f, 0.8f, 0.0f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLight.constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLight.linear"), 0.09f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLight.quadratic"), 0.032f);
@@ -594,14 +650,14 @@ int main() {
 		//Puerta deslizante izquierda
 		model = glm::mat4(1);
 		model = glm::translate(model, glm::vec3(-3.15f, 27.65f, 12.9f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(1.1f, 1.0f, 1.0f));
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		puertaDeslizanteIzq.Draw(lightingShader);
 
 		//Puerta deslizante derecha
 		model = glm::mat4(1);
 		model = glm::translate(model, glm::vec3(xSlideDoor, 27.65f, 12.7f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(1.1f, 1.0f, 1.0f));
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		puertaDeslizanteIzq.Draw(lightingShader);
 
@@ -618,47 +674,45 @@ int main() {
 		view = camera.GetViewMatrix();
 		model = glm::mat4(1);
 		model = glm::translate(model, glm::vec3(posX, posY, posZ));
-		model = glm::translate(model, glm::vec3(-0.26f, 0.18f, -0.05));
-		model = glm::rotate(model, glm::radians(-v), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(-rotBraDerY), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(-rotBraDerZ), glm::vec3(0.0f, 0.0f, 1.0f));
-		
+		model = glm::translate(model, glm::vec3(-0.1f, 0.27f, -0.05));
+		model = glm::rotate(model, glm::radians(rotBraDerX), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotBraDerY), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotBraDerZ), glm::vec3(0.0f, 0.0f, 1.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		brazoDer.Draw(lightingShader);
 
 		////Brazo izquierdo
-		//view = camera.GetViewMatrix();
-		//model = glm::mat4(1);
-		//model = glm::translate(model, glm::vec3(posX, posY, posZ));
-		//model = glm::rotate(model, glm::radians(-rotBraIzqX), glm::vec3(1.0f, 0.0f, 0.0f));
-		//model = glm::rotate(model, glm::radians(-rotBraIzqY), glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::rotate(model, glm::radians(-rotBraIzqZ), glm::vec3(0.0f, 0.0f, 1.0f));
-		//model = glm::translate(model, glm::vec3(0.26f, 0.18f, -0.05));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//brazoIzq.Draw(lightingShader);
+		view = camera.GetViewMatrix();
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(posX, posY, posZ));
+		model = glm::translate(model, glm::vec3(0.1f, 0.27f, -0.05));
+		model = glm::rotate(model, glm::radians(rotBraIzqX), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotBraIzqY), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotBraIzqZ), glm::vec3(0.0f, 0.0f, 1.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		brazoIzq.Draw(lightingShader);
 
 		//// Pie Izq
-		//view = camera.GetViewMatrix();
-		//model = glm::translate(tmp, glm::vec3(0.2f, -0.28f, -0.05f));
-
-		//model = glm::translate(model, glm::vec3(posX, posY, posZ));
-		//model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
-		//model = glm::rotate(model, glm::radians(-rotPieIzqX), glm::vec3(1.0f, 0.0f, 0.0f));
-		//model = glm::rotate(model, glm::radians(-rotPieIzqY), glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::rotate(model, glm::radians(-rotPieIzqZ), glm::vec3(0.0f, 0.0f, 1.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//pieIzq.Draw(lightingShader);
+		view = camera.GetViewMatrix();
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(posX, posY, posZ));
+		model = glm::translate(tmp, glm::vec3(0.17f, -0.16f, -0.05f));
+		model = glm::rotate(model, glm::radians(rotPieIzqX), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotPieIzqY), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotPieIzqZ), glm::vec3(0.0f, 0.0f, 1.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		pieIzq.Draw(lightingShader);
 
 		//// Pie Der
-		//view = camera.GetViewMatrix();
-		//model = glm::translate(tmp, glm::vec3(-0.2f, -0.28f, -0.05f));
-		//model = glm::translate(model, glm::vec3(posX, posY, posZ));
-		//model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
-		//model = glm::rotate(model, glm::radians(-rotPieDerX), glm::vec3(1.0f, 0.0f, 0.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//pieDer.Draw(lightingShader);
-
-		
+		view = camera.GetViewMatrix();
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(posX, posY, posZ));
+		model = glm::translate(tmp, glm::vec3(-0.17f, -0.16f, -0.05f));
+		model = glm::rotate(model, glm::radians(rotPieDerX), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotPieDerY), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotPieDerZ), glm::vec3(0.0f, 0.0f, 1.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		pieDer.Draw(lightingShader);
 
 		switch (tipo) {
 			case normal:
@@ -669,7 +723,7 @@ int main() {
 				model = glm::mat4(1);
 				model = glm::translate(model, glm::vec3(posX, posY, posZ));
 				model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
-				model = glm::translate(model, glm::vec3(0.0f, 0.52f, -0.055f));
+				model = glm::translate(model, glm::vec3(0.0f, 0.50f, -0.055f));
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 				lampara.Draw(lightingShader);
 				break;
@@ -687,7 +741,7 @@ int main() {
 				model = glm::mat4(1);
 				model = glm::translate(model, glm::vec3(posX, posY, posZ));
 				model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
-				model = glm::translate(model, glm::vec3(-0.4f, 0.0f, 0.0f));
+				model = glm::translate(model, glm::vec3(cuchilloX, cuchilloY, cuchilloZ));
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 				cuchillo.Draw(lightingShader);
 				break;
@@ -695,8 +749,9 @@ int main() {
 				DibujarCabeza(view, model, modelLoc, cabeza, lightingShader);
 				model = glm::mat4(1);
 				model = glm::translate(model, glm::vec3(posX, posY, posZ));
-				model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
-				model = glm::translate(model, glm::vec3(0.4f, 0.2f, 0.0f));
+				model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0f));
+				model = glm::rotate(model, glm::radians(rotFlautaX), glm::vec3(1.0f, 0.0f, 0.0f));
+				model = glm::translate(model, glm::vec3(flautaX, flautaY, flautaZ));
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 				flauta.Draw(lightingShader);
 				break;
@@ -704,13 +759,9 @@ int main() {
 				break;
 		}
 
+		//Draw cube for lights
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		model = glm::mat4(1);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		// Draw the light object (using light's vertex attributes)
 		glBindVertexArray(lightVAO);
 		for (GLuint i = 0; i < 4; i++) 		{
 			model = glm::mat4(1);
@@ -770,54 +821,93 @@ void DoMovement() {
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
 
-	//Selección de efectos
-	if (keys[GLFW_KEY_1]) {
-		LimpiarKeyFrames();
-		tipo = normal;
-	}
+	if (canInput) {
+		//Selección de efectos
+		if (keys[GLFW_KEY_1]) {
+			tipo = normal;
+			LimpiarKeyFrames();
+			PrepAnim();
+		}
 
-	if (keys[GLFW_KEY_2]) {
-		LimpiarKeyFrames();
-		tipo = lamp;
-	}
+		if (keys[GLFW_KEY_2]) {
+			tipo = lamp;
+			LimpiarKeyFrames();
+			PrepAnim();
+		}
 
-	if (keys[GLFW_KEY_3]) {
-		LimpiarKeyFrames();
-		tipo = neko;
-	}
+		if (keys[GLFW_KEY_3]) {
+			tipo = neko;
+			LimpiarKeyFrames();
+			PrepAnim();
+		}
 
-	if (keys[GLFW_KEY_4]) {
-		LimpiarKeyFrames();
-		tipo = knife;
-	}
+		if (keys[GLFW_KEY_4]) {
+			tipo = knife;
+			LimpiarKeyFrames();
+			PrepAnim();
+		}
 
-	if (keys[GLFW_KEY_5]) {
-		LimpiarKeyFrames();
-		tipo = flute;
-	}
+		if (keys[GLFW_KEY_5]) {
+			tipo = flute;
+			LimpiarKeyFrames();
+			PrepAnim();
+		}
 
-	//Animaciones
-	if (keys[GLFW_KEY_I]) 	{
-		animSlideDoor = true;
-	}
+		//Animaciones
+		if (keys[GLFW_KEY_I]) {
+			animSlideDoor = true;
+			canInput = false;
+			InputDelay();
+		}
 
-	if (keys[GLFW_KEY_Q] && !playing) {
-		playing = true;
-		switch (tipo) 	{
-		case normal:
-			break;
-		case lamp:
-			break;
-		case neko:
-			break;
-		case knife:
-			break;
-		case flute:
-			break;
-		default:
-			break;
+		if (keys[GLFW_KEY_Q] && play == false) {
+			if (play == false && (FrameIndex > 1)) 		{
+
+				resetElements();
+				//First Interpolation				
+				interpolation();
+
+				play = true;
+				playIndex = 0;
+				i_curr_steps = 0;
+			} 		else 		{
+				play = false;
+			}
+
+			canInput = false;
+			InputDelay();
 		}
 	}
+
+	/*if (keys[GLFW_KEY_T]) {
+		flautaX += 0.01f;
+		PrintearCosas();
+	}
+
+	if (keys[GLFW_KEY_Y]) {
+		flautaY += 0.01f;
+		PrintearCosas();
+	}
+
+	if (keys[GLFW_KEY_U]) {
+		flautaZ += 0.01f;
+		PrintearCosas();
+	}
+
+	if (keys[GLFW_KEY_G]) {
+		flautaX -= 0.01f;
+		PrintearCosas();
+	}
+
+	if (keys[GLFW_KEY_H]) {
+		flautaY -= 0.01f;
+		PrintearCosas();
+	}
+
+	if (keys[GLFW_KEY_J]) {
+		flautaZ -= 0.01f;
+		PrintearCosas();
+	}*/
 }
 
 void animacion() {
@@ -836,6 +926,61 @@ void animacion() {
 				open = true;
 			}
 		}
+	}
+
+	if (play) 		{
+		if (i_curr_steps >= i_max_steps) //end of animation between frames?
+		{
+			playIndex++;
+			if (playIndex > FrameIndex - 2)	//end of total animation?
+			{
+				printf("termina anim\n");
+				playIndex = 0;
+				play = false;
+				if (tipo == lamp) {
+					on = !on;
+				}
+			} 				else //Next frame interpolations
+			{
+				i_curr_steps = 0; //Reset counter
+								  //Interpolation
+				interpolation();
+			}
+		} 			else 			{
+			//Draw animation
+			posX += KeyFrame[playIndex].incX;
+			posY += KeyFrame[playIndex].incY;
+			posZ += KeyFrame[playIndex].incZ;
+
+			rotBraDerX += KeyFrame[playIndex].rotIncBraDerX;
+			rotBraDerY += KeyFrame[playIndex].rotIncBraDerY;
+			rotBraDerZ += KeyFrame[playIndex].rotIncBraDerZ;
+
+			rotBraIzqX += KeyFrame[playIndex].rotIncBraIzqX;
+			rotBraIzqY += KeyFrame[playIndex].rotIncBraIzqY;
+			rotBraIzqZ += KeyFrame[playIndex].rotIncBraIzqZ;
+
+			rotPieDerX += KeyFrame[playIndex].rotIncPieDerX;
+			rotPieDerY += KeyFrame[playIndex].rotIncPieDerY;
+			rotPieDerZ += KeyFrame[playIndex].rotIncPieDerZ;
+
+			rotPieIzqX += KeyFrame[playIndex].rotIncPieIzqX;
+			rotPieIzqY += KeyFrame[playIndex].rotIncPieIzqY;
+			rotPieIzqZ += KeyFrame[playIndex].rotIncPieIzqZ;
+
+			cuchilloX += KeyFrame[playIndex].incCuchilloX;
+			cuchilloY += KeyFrame[playIndex].incCuchilloY;
+			cuchilloZ += KeyFrame[playIndex].incCuchilloZ;
+
+			flautaX += KeyFrame[playIndex].incFlautaX;
+			flautaY += KeyFrame[playIndex].incFlautaY;
+			flautaZ += KeyFrame[playIndex].incFlautaZ;
+
+			rotFlautaX += KeyFrame[playIndex].rotIncFlautaX;
+
+			i_curr_steps++;
+		}
+
 	}
 }
 
@@ -881,9 +1026,9 @@ void DibujarCabeza(glm::mat4 view, glm::mat4 model, GLint modelLoc, Model cabeza
 
 void LimpiarKeyFrames() {
 	for (int i = 0; i < MAX_FRAMES; i++) {
-		KeyFrame[i].posX = 0;		//Variable para PosicionX
-		KeyFrame[i].posY = 0;		//Variable para PosicionY
-		KeyFrame[i].posZ = 0;		//Variable para PosicionZ
+		KeyFrame[i].posX = posX;		//Variable para PosicionX
+		KeyFrame[i].posY = posY;		//Variable para PosicionY
+		KeyFrame[i].posZ = posZ;		//Variable para PosicionZ
 		KeyFrame[i].incX = 0;		//Variable para IncrementoX
 		KeyFrame[i].incY = 0;		//Variable para IncrementoY
 		KeyFrame[i].incZ = 0;		//Variable para IncrementoZ
@@ -913,16 +1058,125 @@ void LimpiarKeyFrames() {
 		KeyFrame[i].rotIncPieIzqY = 0;
 		KeyFrame[i].rotIncPieDerZ = 0;
 		KeyFrame[i].rotIncPieIzqZ = 0;
+
+		KeyFrame[i].cuchilloX = -0.4f;
+		KeyFrame[i].cuchilloY = 0.0f;
+		KeyFrame[i].cuchilloZ = 0.0f;
+		KeyFrame[i].incCuchilloX = 0.0f;
+		KeyFrame[i].incCuchilloY = 0.0f;
+		KeyFrame[i].incCuchilloZ = 0.0f;
+
+		KeyFrame[i].flautaX = 0.4f;
+		KeyFrame[i].flautaY = 0.1f;
+		KeyFrame[i].flautaZ = -0.1f;
+		KeyFrame[i].incFlautaX = 0.0f;
+		KeyFrame[i].incFlautaY = 0.0f;
+		KeyFrame[i].incFlautaZ = 0.0f;
+		
+		KeyFrame[i].rotFlautaX = 0.0f;
+		KeyFrame[i].rotIncFlautaX = 0.0f;
+
 	}
 }
 
 //Preparar animación
-void PrepLampAnim() {
-
+void PrepAnim() {
+	FrameIndex = 0;
+	switch (tipo) 	{
+	case normal:
+		break;
+	case lamp:
+		saveFrame();
+		rotBraIzqZ = 128.0f;
+		saveFrame();
+		rotBraIzqZ = 0.0f;
+		saveFrame();
+		break;
+	case neko:
+		saveFrame();
+		rotBraIzqZ = 100.0f;
+		saveFrame();
+		rotBraIzqY = -40.0f;
+		saveFrame();
+		rotBraIzqY = 0.0f;
+		saveFrame();
+		rotBraIzqZ = 0.0f;
+		saveFrame();
+		break;
+	case knife:
+		saveFrame();
+		rotBraIzqY = -100.0f;
+		rotBraDerY = 100.0f;
+		cuchilloX = 0.0f;
+		cuchilloY = -0.05f;
+		cuchilloZ = 0.4f;
+		saveFrame();
+		rotBraIzqY = 0.0f;
+		rotBraDerY = 0.0f;
+		cuchilloX = 0.4f;
+		cuchilloY = -0.05f;
+		cuchilloZ = 0.0f;
+		saveFrame();
+		rotBraIzqY = -100.0f;
+		rotBraDerY = 100.0f;
+		cuchilloX = 0.0f;
+		cuchilloY = -0.05f;
+		cuchilloZ = 0.4f;
+		saveFrame();
+		rotBraIzqY = 0.0f;
+		rotBraDerY = 0.0f;
+		cuchilloX = -0.4f;
+		cuchilloY = -0.05f;
+		cuchilloZ = 0.0f;
+		saveFrame();
+		break;
+	case flute:
+		saveFrame();
+		rotBraIzqY = -100.0f;
+		rotBraDerY = 100.0f;
+		flautaX = 0.0f;
+		flautaY = 0.16f;
+		flautaZ = 0.28f;
+		saveFrame();
+		rotBraDerX = -20.0f;
+		rotBraIzqX = -40.0f;
+		rotFlautaX = -10.0f;
+		saveFrame();
+		rotBraDerX = -40.0f;
+		rotBraIzqX = -20.0f;
+		saveFrame();
+		rotBraDerX = -10.0f;
+		rotBraIzqX = -30.0f;
+		saveFrame();
+		rotBraDerX = -60.0f;
+		rotBraIzqX = -50.0f;
+		saveFrame();
+		rotBraDerX = 0.0f;
+		rotBraIzqX = 0.0f;
+		rotFlautaX = 0.0f;
+		saveFrame();
+		rotBraIzqY = 0.0f;
+		rotBraDerY = 0.0f;
+		flautaX = 0.4f;
+		flautaY = 0.1f;
+		flautaZ = -0.1f;
+		saveFrame();
+		break;
+	default:
+		break;
+	}
+	resetElements();
+	canInput = false;
+	InputDelay();
 }
 
+void PrintearCosas() {
+	printf("X: %f\t", flautaX);
+	printf("Y: %f\t", flautaY);
+	printf("Z: %f\n", flautaZ);
+}
 
-//void InputDelay() {
-//	Sleep(200);
-//	canInput = true;
-//}
+void InputDelay() {
+	Sleep(200);
+	canInput = true;
+}
