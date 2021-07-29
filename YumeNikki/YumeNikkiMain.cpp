@@ -38,6 +38,8 @@ int main();
 void DoMovement();
 void animacion();
 void DibujarCabeza(glm::mat4 view, glm::mat4 model, GLint modelLoc, Model cabeza, Shader lightingShader);
+void LimpiarKeyFrames();
+//void InputDelay();
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -60,7 +62,12 @@ GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
 GLfloat lastFrame = 0.0f;  	// Time of last frame
 
 // Keyframes
-float posX = PosIni.x, posY = PosIni.y, posZ = PosIni.z, rotRodIzq = 0, rotRodDer = 0, rotBraIzq = 0, rotBraDer = 0;
+float posX = PosIni.x, posY = PosIni.y, posZ = PosIni.z;
+float rotBraDerX = 0, rotBraDerY = 0, rotBraDerZ = 0;
+float rotBraIzqX = 0, rotBraIzqY = 0, rotBraIzqZ = 0;
+
+float rotPieDerX = 0, rotPieDerY = 0, rotPieDerZ = 0;
+float rotPieIzqX = 0, rotPieIzqY = 0, rotPieIzqZ = 0;
 
 #define MAX_FRAMES 9
 int i_max_steps = 190;
@@ -73,14 +80,32 @@ typedef struct _frame {
 	float incX;		//Variable para IncrementoX
 	float incY;		//Variable para IncrementoY
 	float incZ;		//Variable para IncrementoZ
-	float rotRodIzq;
-	float rotRodDer;
-	float rotBraIzq;
-	float rotBraDer;
-	float rotInc;
-	float rotInc2;
-	float rotInc3;
-	float rotInc4;
+
+	float rotBraDerX;
+	float rotBraIzqX;
+	float rotBraDerY;
+	float rotBraIzqY;
+	float rotBraDerZ;
+	float rotBraIzqZ;
+	float rotIncBraDerX;
+	float rotIncBraIzqX;
+	float rotIncBraDerY;
+	float rotIncBraIzqY;
+	float rotIncBraDerZ;
+	float rotIncBraIzqZ;
+
+	float rotPieDerX;
+	float rotPieIzqX;
+	float rotPieDerY;
+	float rotPieIzqY;
+	float rotPieDerZ;
+	float rotPieIzqZ;
+	float rotIncPieDerX;
+	float rotIncPieIzqX;
+	float rotIncPieDerY;
+	float rotIncPieIzqY;
+	float rotIncPieDerZ;
+	float rotIncPieIzqZ;
 }FRAME;
 
 FRAME KeyFrame[MAX_FRAMES];
@@ -88,16 +113,17 @@ int FrameIndex = 0;			//introducir datos
 bool play = false;
 int playIndex = 0;
 
+float v = 0.1f;
+
 // Positions of the point lights
 glm::vec3 pointLightPositions[] = {
-	glm::vec3(posX,posY,posZ),
-	glm::vec3(0,0,0),
-	glm::vec3(0,0,0),
-	glm::vec3(0,0,0)
+	glm::vec3(posX,posY + 0.52f,posZ),
+	glm::vec3(0.0f, 0.0f, 0.0f),
+	glm::vec3(0,1.0f,0),
+	glm::vec3(0,0,1.0f)
 };
 
 glm::vec3 LightP1;
-
 
 void saveFrame(void)
 {
@@ -108,10 +134,21 @@ void saveFrame(void)
 	KeyFrame[FrameIndex].posY = posY;
 	KeyFrame[FrameIndex].posZ = posZ;
 
-	KeyFrame[FrameIndex].rotRodIzq = rotRodIzq;
-	KeyFrame[FrameIndex].rotRodDer = rotRodDer;
-	KeyFrame[FrameIndex].rotBraIzq = rotBraIzq;
-	KeyFrame[FrameIndex].rotBraDer = rotBraDer;
+	KeyFrame[FrameIndex].rotBraDerX = rotBraDerX;
+	KeyFrame[FrameIndex].rotBraDerY = rotBraDerY;
+	KeyFrame[FrameIndex].rotBraDerZ = rotBraDerZ;
+
+	KeyFrame[FrameIndex].rotBraIzqX = rotBraIzqX;
+	KeyFrame[FrameIndex].rotBraIzqY = rotBraIzqY;
+	KeyFrame[FrameIndex].rotBraIzqZ = rotBraIzqZ;
+
+	KeyFrame[FrameIndex].rotPieDerX = rotPieDerX;
+	KeyFrame[FrameIndex].rotPieDerY = rotPieDerY;
+	KeyFrame[FrameIndex].rotPieDerZ = rotPieDerZ;
+
+	KeyFrame[FrameIndex].rotPieDerX = rotPieIzqX;
+	KeyFrame[FrameIndex].rotPieDerY = rotPieIzqY;
+	KeyFrame[FrameIndex].rotPieDerZ = rotPieIzqZ;
 
 	FrameIndex++;
 }
@@ -122,11 +159,19 @@ void resetElements(void)
 	posY = KeyFrame[0].posY;
 	posZ = KeyFrame[0].posZ;
 
-	rotRodIzq = KeyFrame[0].rotRodIzq;
-	rotRodDer = KeyFrame[0].rotRodDer;
-	rotBraIzq = KeyFrame[0].rotBraIzq;
-	rotBraDer = KeyFrame[0].rotBraDer;
+	rotBraDerX = KeyFrame[0].rotBraDerX;
+	rotBraDerY = KeyFrame[0].rotBraDerY;
+	rotBraDerZ = KeyFrame[0].rotBraDerZ;
+	rotBraIzqX = KeyFrame[0].rotBraIzqX;
+	rotBraIzqY = KeyFrame[0].rotBraIzqY;
+	rotBraIzqZ = KeyFrame[0].rotBraIzqZ;
 
+	rotPieDerX = KeyFrame[0].rotPieDerX;
+	rotPieDerY = KeyFrame[0].rotPieDerY;
+	rotPieDerZ = KeyFrame[0].rotPieDerZ;
+	rotPieIzqX = KeyFrame[0].rotPieIzqX;
+	rotPieIzqY = KeyFrame[0].rotPieIzqY;
+	rotPieIzqZ = KeyFrame[0].rotPieIzqZ;
 }
 
 void interpolation(void)
@@ -136,11 +181,21 @@ void interpolation(void)
 	KeyFrame[playIndex].incY = (KeyFrame[playIndex + 1].posY - KeyFrame[playIndex].posY) / i_max_steps;
 	KeyFrame[playIndex].incZ = (KeyFrame[playIndex + 1].posZ - KeyFrame[playIndex].posZ) / i_max_steps;
 
-	KeyFrame[playIndex].rotInc = (KeyFrame[playIndex + 1].rotRodIzq - KeyFrame[playIndex].rotRodIzq) / i_max_steps;
-	KeyFrame[playIndex].rotInc2 = (KeyFrame[playIndex + 1].rotRodDer - KeyFrame[playIndex].rotRodDer) / i_max_steps;
-	KeyFrame[playIndex].rotInc3 = (KeyFrame[playIndex + 1].rotBraIzq - KeyFrame[playIndex].rotBraIzq) / i_max_steps;
-	KeyFrame[playIndex].rotInc4 = (KeyFrame[playIndex + 1].rotBraDer - KeyFrame[playIndex].rotBraDer) / i_max_steps;
+	KeyFrame[playIndex].rotIncBraDerX = (KeyFrame[playIndex + 1].rotBraDerX - KeyFrame[playIndex].rotBraDerX) / i_max_steps;
+	KeyFrame[playIndex].rotIncBraDerY = (KeyFrame[playIndex + 1].rotBraDerY - KeyFrame[playIndex].rotBraDerY) / i_max_steps;
+	KeyFrame[playIndex].rotIncBraDerZ = (KeyFrame[playIndex + 1].rotBraDerZ - KeyFrame[playIndex].rotBraDerZ) / i_max_steps;
 
+	KeyFrame[playIndex].rotIncBraIzqX = (KeyFrame[playIndex + 1].rotBraIzqX - KeyFrame[playIndex].rotBraIzqX) / i_max_steps;
+	KeyFrame[playIndex].rotIncBraIzqY = (KeyFrame[playIndex + 1].rotBraIzqY - KeyFrame[playIndex].rotBraIzqY) / i_max_steps;
+	KeyFrame[playIndex].rotIncBraIzqZ = (KeyFrame[playIndex + 1].rotBraIzqZ - KeyFrame[playIndex].rotBraIzqZ) / i_max_steps;
+
+	KeyFrame[playIndex].rotIncPieDerX = (KeyFrame[playIndex + 1].rotPieDerX - KeyFrame[playIndex].rotPieDerX) / i_max_steps;
+	KeyFrame[playIndex].rotIncPieDerY = (KeyFrame[playIndex + 1].rotPieDerY - KeyFrame[playIndex].rotPieDerY) / i_max_steps;
+	KeyFrame[playIndex].rotIncPieDerZ = (KeyFrame[playIndex + 1].rotPieDerZ - KeyFrame[playIndex].rotPieDerZ) / i_max_steps;
+
+	KeyFrame[playIndex].rotIncPieIzqX = (KeyFrame[playIndex + 1].rotPieIzqX - KeyFrame[playIndex].rotPieIzqX) / i_max_steps;
+	KeyFrame[playIndex].rotIncPieIzqY = (KeyFrame[playIndex + 1].rotPieIzqY - KeyFrame[playIndex].rotPieIzqY) / i_max_steps;
+	KeyFrame[playIndex].rotIncPieIzqZ = (KeyFrame[playIndex + 1].rotPieIzqZ - KeyFrame[playIndex].rotPieIzqZ) / i_max_steps;
 }
 
 //Seleccion de efecto
@@ -156,6 +211,7 @@ Efecto tipo(normal);
 
 
 //Variables para las animaciones
+bool playing = false;
 bool animSlideDoor = false;
 bool open = true;
 float xSlideDoor = -2.0f;
@@ -235,20 +291,7 @@ int main() {
 
 	//Inicialización de KeyFrames
 
-	for (int i = 0; i < MAX_FRAMES; i++) 	{
-		KeyFrame[i].posX = 0;
-		KeyFrame[i].incX = 0;
-		KeyFrame[i].incY = 0;
-		KeyFrame[i].incZ = 0;
-		KeyFrame[i].rotRodIzq = 0;
-		KeyFrame[i].rotRodDer = 0;
-		KeyFrame[i].rotBraIzq = 0;
-		KeyFrame[i].rotBraDer = 0;
-		KeyFrame[i].rotInc = 0;
-		KeyFrame[i].rotInc2 = 0;
-		KeyFrame[i].rotInc3 = 0;
-		KeyFrame[i].rotInc4 = 0;
-	}
+	LimpiarKeyFrames();
 
 	// Set up vertex data (and buffer(s)) and attribute pointers
 	GLfloat vertices[] =
@@ -465,7 +508,7 @@ int main() {
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
 
 		// Point light 1
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].position"), posX, posY + 0.52f, posZ);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].ambient"), 0.05f, 0.05f, 0.05f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].diffuse"), LightP1.x, LightP1.y, LightP1.z);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].specular"), LightP1.x, LightP1.y, LightP1.z);
@@ -562,53 +605,60 @@ int main() {
 		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		puertaDeslizanteIzq.Draw(lightingShader);
 
+		
 		//Madotsuki
 		// Cuerpo
 		view = camera.GetViewMatrix();
 		model = glm::mat4(1);
-		tmp = model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(posX, posY, posZ));
-		model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
+		tmp = model = glm::translate(model, glm::vec3(posX, posY, posZ));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		cuerpo.Draw(lightingShader);
-
-		// Pie Izq
-		view = camera.GetViewMatrix();
-		model = glm::translate(tmp, glm::vec3(0.2f, -0.28f, -0.05f));
-		model = glm::translate(model, glm::vec3(posX, posY, posZ));
-		model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
-		model = glm::rotate(model, glm::radians(-rotRodIzq), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		pieIzq.Draw(lightingShader);
-
-		// Pie Der
-		view = camera.GetViewMatrix();
-		model = glm::translate(tmp, glm::vec3(-0.2f, -0.28f, -0.05f));
-		model = glm::translate(model, glm::vec3(posX, posY, posZ));
-		model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
-		model = glm::rotate(model, glm::radians(-rotRodIzq), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		pieDer.Draw(lightingShader);
-
-		//Brazo izquierdo
-		view = camera.GetViewMatrix();
-		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(posX, posY, posZ));
-		//model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(0.26f, 0.18f, -0.05));
-		model = glm::rotate(model, glm::radians(-rotBraDer), glm::vec3(1.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		brazoIzq.Draw(lightingShader);
 
 		//Brazo derecho
 		view = camera.GetViewMatrix();
 		model = glm::mat4(1);
 		model = glm::translate(model, glm::vec3(posX, posY, posZ));
-		//model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::translate(model, glm::vec3(-0.26f, 0.18f, -0.05));
-		model = glm::rotate(model, glm::radians(-rotBraIzq), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(-v), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(-rotBraDerY), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(-rotBraDerZ), glm::vec3(0.0f, 0.0f, 1.0f));
+		
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		brazoDer.Draw(lightingShader);
+
+		////Brazo izquierdo
+		//view = camera.GetViewMatrix();
+		//model = glm::mat4(1);
+		//model = glm::translate(model, glm::vec3(posX, posY, posZ));
+		//model = glm::rotate(model, glm::radians(-rotBraIzqX), glm::vec3(1.0f, 0.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(-rotBraIzqY), glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(-rotBraIzqZ), glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::translate(model, glm::vec3(0.26f, 0.18f, -0.05));
+		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		//brazoIzq.Draw(lightingShader);
+
+		//// Pie Izq
+		//view = camera.GetViewMatrix();
+		//model = glm::translate(tmp, glm::vec3(0.2f, -0.28f, -0.05f));
+
+		//model = glm::translate(model, glm::vec3(posX, posY, posZ));
+		//model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
+		//model = glm::rotate(model, glm::radians(-rotPieIzqX), glm::vec3(1.0f, 0.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(-rotPieIzqY), glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(-rotPieIzqZ), glm::vec3(0.0f, 0.0f, 1.0f));
+		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		//pieIzq.Draw(lightingShader);
+
+		//// Pie Der
+		//view = camera.GetViewMatrix();
+		//model = glm::translate(tmp, glm::vec3(-0.2f, -0.28f, -0.05f));
+		//model = glm::translate(model, glm::vec3(posX, posY, posZ));
+		//model = glm::rotate(model, glm::radians(rot), glm::vec3(0.0f, 1.0f, 0.0));
+		//model = glm::rotate(model, glm::radians(-rotPieDerX), glm::vec3(1.0f, 0.0f, 0.0f));
+		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		//pieDer.Draw(lightingShader);
+
+		
 
 		switch (tipo) {
 			case normal:
@@ -654,6 +704,22 @@ int main() {
 				break;
 		}
 
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		model = glm::mat4(1);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		// Draw the light object (using light's vertex attributes)
+		glBindVertexArray(lightVAO);
+		for (GLuint i = 0; i < 4; i++) 		{
+			model = glm::mat4(1);
+			model = glm::translate(model, pointLightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 		// Draw skybox as last
 		glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
 		SkyBoxshader.Use();
@@ -673,12 +739,12 @@ int main() {
 		glfwSwapBuffers(window);
 	}
 
-	//glDeleteVertexArrays(1, &VAO);
-	//glDeleteVertexArrays(1, &lightVAO);
-	//glDeleteBuffers(1, &VBO);
-	//glDeleteBuffers(1, &EBO);
-	//glDeleteVertexArrays(1, &skyboxVAO);
-	//glDeleteBuffers(1, &skyboxVBO);
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &lightVAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	glDeleteVertexArrays(1, &skyboxVAO);
+	glDeleteBuffers(1, &skyboxVBO);
 	//// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
 	return 0;
@@ -706,22 +772,27 @@ void DoMovement() {
 
 	//Selección de efectos
 	if (keys[GLFW_KEY_1]) {
+		LimpiarKeyFrames();
 		tipo = normal;
 	}
 
 	if (keys[GLFW_KEY_2]) {
+		LimpiarKeyFrames();
 		tipo = lamp;
 	}
 
 	if (keys[GLFW_KEY_3]) {
+		LimpiarKeyFrames();
 		tipo = neko;
 	}
 
 	if (keys[GLFW_KEY_4]) {
+		LimpiarKeyFrames();
 		tipo = knife;
 	}
 
 	if (keys[GLFW_KEY_5]) {
+		LimpiarKeyFrames();
 		tipo = flute;
 	}
 
@@ -729,19 +800,37 @@ void DoMovement() {
 	if (keys[GLFW_KEY_I]) 	{
 		animSlideDoor = true;
 	}
+
+	if (keys[GLFW_KEY_Q] && !playing) {
+		playing = true;
+		switch (tipo) 	{
+		case normal:
+			break;
+		case lamp:
+			break;
+		case neko:
+			break;
+		case knife:
+			break;
+		case flute:
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void animacion() {
 	//slide door
 	if (animSlideDoor) {
 		if (open) 	{
-			xSlideDoor += 0.1f;
+			xSlideDoor += 0.05f;
 			if (xSlideDoor >= 0) 	{
 				animSlideDoor = false;
 				open = false;
 			}
 		} else {
-			xSlideDoor -= 0.1f;
+			xSlideDoor -= 0.05f;
 			if (xSlideDoor <= -2) {
 				animSlideDoor = false;
 				open = true;
@@ -789,3 +878,51 @@ void DibujarCabeza(glm::mat4 view, glm::mat4 model, GLint modelLoc, Model cabeza
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	cabeza.Draw(lightingShader);
 }
+
+void LimpiarKeyFrames() {
+	for (int i = 0; i < MAX_FRAMES; i++) {
+		KeyFrame[i].posX = 0;		//Variable para PosicionX
+		KeyFrame[i].posY = 0;		//Variable para PosicionY
+		KeyFrame[i].posZ = 0;		//Variable para PosicionZ
+		KeyFrame[i].incX = 0;		//Variable para IncrementoX
+		KeyFrame[i].incY = 0;		//Variable para IncrementoY
+		KeyFrame[i].incZ = 0;		//Variable para IncrementoZ
+
+		KeyFrame[i].rotBraDerX = 0;
+		KeyFrame[i].rotBraIzqX = 0;
+		KeyFrame[i].rotBraDerY = 0;
+		KeyFrame[i].rotBraIzqY = 0;
+		KeyFrame[i].rotBraDerZ = 0;
+		KeyFrame[i].rotBraIzqZ = 0;
+		KeyFrame[i].rotIncBraDerX = 0;
+		KeyFrame[i].rotIncBraIzqX = 0;
+		KeyFrame[i].rotIncBraDerY = 0;
+		KeyFrame[i].rotIncBraIzqY = 0;
+		KeyFrame[i].rotIncBraDerZ = 0;
+		KeyFrame[i].rotIncBraIzqZ = 0;
+
+		KeyFrame[i].rotPieDerX = 0;
+		KeyFrame[i].rotPieIzqX = 0;
+		KeyFrame[i].rotPieDerY = 0;
+		KeyFrame[i].rotPieIzqY = 0;
+		KeyFrame[i].rotPieDerZ = 0;
+		KeyFrame[i].rotPieIzqZ = 0;
+		KeyFrame[i].rotIncPieDerX = 0;
+		KeyFrame[i].rotIncPieIzqX = 0;
+		KeyFrame[i].rotIncPieDerY = 0;
+		KeyFrame[i].rotIncPieIzqY = 0;
+		KeyFrame[i].rotIncPieDerZ = 0;
+		KeyFrame[i].rotIncPieIzqZ = 0;
+	}
+}
+
+//Preparar animación
+void PrepLampAnim() {
+
+}
+
+
+//void InputDelay() {
+//	Sleep(200);
+//	canInput = true;
+//}
