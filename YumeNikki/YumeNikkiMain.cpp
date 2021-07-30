@@ -39,7 +39,7 @@ void DoMovement();
 void animacion();
 void DibujarCabeza(glm::mat4 view, glm::mat4 model, GLint modelLoc, Model cabeza, Shader lightingShader);
 void LimpiarKeyFrames();
-void PrintearCosas();
+//void PrintearCosas();
 void PrepAnim();
 void InputDelay();
 
@@ -147,7 +147,7 @@ glm::vec3 pointLightPositions[] = {
 void saveFrame(void)
 {
 
-	printf("frameindex %d\n", FrameIndex);
+	//printf("frameindex %d\n", FrameIndex);
 
 	KeyFrame[FrameIndex].posX = posX;
 	KeyFrame[FrameIndex].posY = posY;
@@ -258,14 +258,14 @@ enum Efecto {
 
 Efecto tipo(normal);
 
-
 //Variables para las animaciones
 bool animSlideDoor = false;
 bool open = true;
 float xSlideDoor = -2.0f;
 bool canInput = true;
 bool on = false;
-
+int fluteSound = 1;
+bool flutePlay = true;
 
 int main() {
 	// Init GLFW
@@ -523,7 +523,7 @@ int main() {
 	glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
 	//Musica
-	//PlaySound(TEXT("Music/ADreamAlwaysBeginsintheVeranda.wav"), NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+	PlaySound(TEXT("Music/ADreamAlwaysBeginsintheVeranda.wav"), NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
 	
 	while (!glfwWindowShouldClose(window)) {
 		// Set frame time
@@ -760,16 +760,16 @@ int main() {
 		}
 
 		//Draw cube for lights
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		glBindVertexArray(lightVAO);
-		for (GLuint i = 0; i < 4; i++) 		{
-			model = glm::mat4(1);
-			model = glm::translate(model, pointLightPositions[i]);
-			model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		//glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		//glBindVertexArray(lightVAO);
+		//for (GLuint i = 0; i < 4; i++) 		{
+		//	model = glm::mat4(1);
+		//	model = glm::translate(model, pointLightPositions[i]);
+		//	model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+		//	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		//	glDrawArrays(GL_TRIANGLES, 0, 36);
+		//}
 
 		// Draw skybox as last
 		glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
@@ -934,12 +934,13 @@ void animacion() {
 			playIndex++;
 			if (playIndex > FrameIndex - 2)	//end of total animation?
 			{
-				printf("termina anim\n");
+				//printf("termina anim\n");
 				playIndex = 0;
 				play = false;
 				if (tipo == lamp) {
 					on = !on;
 				}
+				flutePlay = true;
 			} 				else //Next frame interpolations
 			{
 				i_curr_steps = 0; //Reset counter
@@ -977,6 +978,34 @@ void animacion() {
 			flautaZ += KeyFrame[playIndex].incFlautaZ;
 
 			rotFlautaX += KeyFrame[playIndex].rotIncFlautaX;
+
+			if (playIndex == 3 && tipo == flute && flutePlay) {
+				flutePlay = false;
+				if (fluteSound == 1) 	{
+					PlaySound(TEXT("Music/Flute1.wav"), NULL, SND_FILENAME);
+				}
+
+				if (fluteSound == 2) 	{
+					PlaySound(TEXT("Music/Flute2.wav"), NULL, SND_FILENAME);
+				}
+
+				if (fluteSound == 3) {
+					PlaySound(TEXT("Music/Flute3.wav"), NULL, SND_FILENAME);
+				}
+
+				if (fluteSound == 4) {
+					PlaySound(TEXT("Music/Flute4.wav"), NULL, SND_FILENAME);
+				}
+
+				if (fluteSound == 5) {
+					PlaySound(TEXT("Music/Flute5.wav"), NULL, SND_FILENAME);
+					fluteSound = 0;
+				}
+				PlaySound(TEXT("Music/ADreamAlwaysBeginsintheVeranda.wav"), NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+				fluteSound++;
+
+			}
+
 
 			i_curr_steps++;
 		}
@@ -1170,11 +1199,13 @@ void PrepAnim() {
 	InputDelay();
 }
 
-void PrintearCosas() {
-	printf("X: %f\t", flautaX);
-	printf("Y: %f\t", flautaY);
-	printf("Z: %f\n", flautaZ);
-}
+//Función auxiliar
+
+//void PrintearCosas() {
+//	/*printf("X: %f\t", flautaX);
+//	printf("Y: %f\t", flautaY);
+//	printf("Z: %f\n", flautaZ);*/
+//}
 
 void InputDelay() {
 	Sleep(200);
