@@ -344,7 +344,7 @@ int main() {
 
 	LimpiarKeyFrames();
 
-	// Set up vertex data (and buffer(s)) and attribute pointers
+	// Set up vertex data (and buffer(s)) and attribute pointers //Mediante estas coordenadas se forma un cubo que ayuda para visualizar donde se encuentra la iluminacion
 	GLfloat vertices[] =
 	{
 		// Positions            // Normals              // Texture Coords
@@ -823,31 +823,31 @@ void DoMovement() {
 
 	if (canInput) {
 		//Selección de efectos
-		if (keys[GLFW_KEY_1]) {
+		if (keys[GLFW_KEY_1]) { //Normal
 			tipo = normal;
 			LimpiarKeyFrames();
 			PrepAnim();
 		}
 
-		if (keys[GLFW_KEY_2]) {
+		if (keys[GLFW_KEY_2]) { //Lampara
 			tipo = lamp;
 			LimpiarKeyFrames();
 			PrepAnim();
 		}
 
-		if (keys[GLFW_KEY_3]) {
+		if (keys[GLFW_KEY_3]) { //Neko
 			tipo = neko;
 			LimpiarKeyFrames();
 			PrepAnim();
 		}
 
-		if (keys[GLFW_KEY_4]) {
+		if (keys[GLFW_KEY_4]) { //cuchillo
 			tipo = knife;
 			LimpiarKeyFrames();
 			PrepAnim();
 		}
 
-		if (keys[GLFW_KEY_5]) {
+		if (keys[GLFW_KEY_5]) { //flauta
 			tipo = flute;
 			LimpiarKeyFrames();
 			PrepAnim();
